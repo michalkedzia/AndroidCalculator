@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Calculator</string>
+    <string name="main_activity_button1">Simple</string>
+    <string name="main_activity_button2">Advanced</string>
+    <string name="main_activity_button3">About</string>
+    <string name="main_activity_button4">Exit</string>
+    <string name="main_activity_textview">Calculator</string>
+
+    <string name="multiplication">&#xd7;</string>
+    <string name="divison">&#xf7;</string>
+    <string name="equal">&#x3d;</string>
+    <string name="plus">&#x2b;</string>
+    <string name="minus">&#x2212;</string>
+    <string name="plusMinus">&#xb1;</string>
+    <string name="percent">&#x25;</string>
+    <string name="squareRoot">&#x221A;</string>
+    <string name="clear">C/CE</string>
+    <string name="allClear">AC</string>
+
+
+</resources>

@@ -64,11 +64,24 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginRight="10dp"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:backgroundTint="#000000"
                 android:text="@string/clear"
                 android:textColor="#FF9800"
                 android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/btnPercent"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:backgroundTint="#000000"
+                android:text="%"
+                android:textColor="#FF9800"
+                android:textSize="20sp" />
+
+
 
             <Button
                 android:id="@+id/btnPlusMinus"

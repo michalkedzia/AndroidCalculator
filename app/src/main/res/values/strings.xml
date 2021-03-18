@@ -16,6 +16,12 @@
     <string name="squareRoot">&#x221A;</string>
     <string name="clear">C/CE</string>
     <string name="allClear">AC</string>
+    <string name="about" formatted="true">
+        Calculator\n
+        \nThe calculator application has two simple and advanced views.\n\n
+        \nAuthor:
+        \nMichał Kędzia
+    </string>
 
 
 </resources>

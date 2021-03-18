@@ -1,24 +1,14 @@
 package mk.calculator;
 
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.io.BufferedReader;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.StringTokenizer;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import mk.calculator.exceptions.IncorrectInputException;
+import mk.calculator.parser.MathParser;
 
 public class CalculatorSimpleActivity extends AppCompatActivity {
     private Button btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn0, btnComma, btnEqual, btnPlus, btnMinus,
@@ -83,7 +73,14 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
         setButtonListener(btn8, "8");
         setButtonListener(btn9, "9");
         btnEqual.setOnClickListener(v -> {
-            String input = textViewInput.getText().toString(), output = textViewOutput.getText().toString();
+            String input = getInput(), output = getOutput();
+            if (output.isEmpty() && !input.isEmpty()) {
+                if (input.contains("%")) return;
+                setInput(calculate(getInput()));
+                return;
+            }
+
+
             if (output.length() == 0) return;
             if (output.charAt(output.length() - 1) == '=') return;
 
@@ -93,32 +90,31 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
                     output = output.subSequence(0, output.length() - 1).toString();
                 }
             }
-
-            textViewOutput.setText(output + input + "=");
-            textViewInput.setText(calculate(textViewOutput.getText().toString()));
+            setOutput(output + " " + input + " " + "=");
+            setInput(calculate(getOutput()));
         });
 
         btn0.setOnClickListener(v -> {
-            String input = textViewInput.getText().toString();
+            String input = getInput();
             if (!(input.length() == 1 && input.contains("0"))) {
-                textViewInput.setText(input + "0");
+                setInput(input + "0");
             }
         });
 
         btnComma.setOnClickListener(v -> {
-            String input = textViewInput.getText().toString();
+            String input = getInput();
             if (input.length() == 0) {
-                textViewInput.setText("0.");
+                setInput("0.");
             } else if (input.length() == 1 && input.contains("-")) {
-                textViewInput.setText("-0.");
+                setInput("-0.");
             } else if (!input.contains(".")) {
-                textViewInput.setText(textViewInput.getText() + ".");
+                setInput(input + ".");
             }
         });
 
         btnPlus.setOnClickListener(v -> {
-            String input = textViewInput.getText().toString();
-            String output = textViewOutput.getText().toString();
+            String input = getInput();
+            String output = getOutput();
 
             if (input.length() != 0) {
                 if (input.charAt(input.length() - 1) == '.')
@@ -127,8 +123,8 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
 
             if (output.length() != 0) {
                 if (output.charAt(output.length() - 1) == '=') {
-                    textViewOutput.setText(input + "+");
-                    textViewInput.setText("");
+                    setOutput(input + " " + "+");
+                    setInput("");
                     return;
                 }
             }
@@ -136,23 +132,21 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
             if (input.length() == 0 && output.length() != 0) {
                 if (output.charAt(output.length() - 1) == '-' || output.charAt(output.length() - 1) == '+' ||
                         output.charAt(output.length() - 1) == '*' || output.charAt(output.length() - 1) == '/') {
-                    textViewOutput.setText(output.subSequence(0, output.length() - 1) + "+");
+                    setOutput(output.subSequence(0, output.length() - 1) + " " + "+");
                 }
             }
 
-            if (input.length() == 0) {
-                return;
-            } else {
+            if (input.length() != 0) {
                 if (input.length() != 0) {
-                    textViewOutput.setText(output + input + "+");
-                    textViewInput.setText("");
+                    setOutput(output + " " + input + " " + "+");
+                    setInput("");
                 }
             }
         });
 
         btnMinus.setOnClickListener(v -> {
-            String input = textViewInput.getText().toString();
-            String output = textViewOutput.getText().toString();
+            String input = getInput();
+            String output = getOutput();
             if (input.length() != 0) {
                 if (input.charAt(input.length() - 1) == '.')
                     return;
@@ -160,8 +154,8 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
 
             if (output.length() != 0) {
                 if (output.charAt(output.length() - 1) == '=') {
-                    textViewOutput.setText(input + "-");
-                    textViewInput.setText("");
+                    setInput("");
+                    setOutput(input + " " + "-");
                     return;
                 }
             }
@@ -169,25 +163,23 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
             if (input.length() == 0 && output.length() != 0) {
                 if (output.charAt(output.length() - 1) == '-' || output.charAt(output.length() - 1) == '+' ||
                         output.charAt(output.length() - 1) == '*' || output.charAt(output.length() - 1) == '/') {
-                    textViewOutput.setText(output.subSequence(0, output.length() - 1) + "-");
+                    setOutput(output.subSequence(0, output.length() - 1) + " " + "-");
                 }
             }
 
-            if (input.length() == 1 && input.contains("-")) {
-                return;
-            } else if (output.length() == 0 && input.length() == 0) {
-                textViewInput.setText("-");
+            if (output.length() == 0 && input.length() == 0) {
+                setInput("-");
             } else {
                 if (input.length() != 0) {
-                    textViewOutput.setText(output + input + "-");
-                    textViewInput.setText("");
+                    setOutput(output + " " + input + " " + "-");
+                    setInput("");
                 }
             }
         });
 
         btnDivide.setOnClickListener(v -> {
-            String input = textViewInput.getText().toString();
-            String output = textViewOutput.getText().toString();
+            String input = getInput();
+            String output = getOutput();
             if (input.length() != 0) {
                 if (input.charAt(input.length() - 1) == '.')
                     return;
@@ -195,8 +187,8 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
 
             if (output.length() != 0) {
                 if (output.charAt(output.length() - 1) == '=') {
-                    textViewOutput.setText(input + "/");
-                    textViewInput.setText("");
+                    setInput("");
+                    setOutput(input + " " + "/");
                     return;
                 }
             }
@@ -204,23 +196,21 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
             if (input.length() == 0 && output.length() != 0) {
                 if (output.charAt(output.length() - 1) == '-' || output.charAt(output.length() - 1) == '+' ||
                         output.charAt(output.length() - 1) == '*' || output.charAt(output.length() - 1) == '/') {
-                    textViewOutput.setText(output.subSequence(0, output.length() - 1) + "/");
+                    setOutput(output.subSequence(0, output.length() - 1) + " " + "/");
                 }
             }
 
-            if (input.length() == 0) {
-                return;
-            } else {
+            if (input.length() != 0) {
                 if (input.length() != 0) {
-                    textViewOutput.setText(output + input + "/");
-                    textViewInput.setText("");
+                    setOutput(output + " " + input + " " + "/");
+                    setInput("");
                 }
             }
         });
 
         btnMultiply.setOnClickListener(v -> {
-            String input = textViewInput.getText().toString();
-            String output = textViewOutput.getText().toString();
+            String input = getInput();
+            String output = getOutput();
             if (input.length() != 0) {
                 if (input.charAt(input.length() - 1) == '.')
                     return;
@@ -228,8 +218,8 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
 
             if (output.length() != 0) {
                 if (output.charAt(output.length() - 1) == '=') {
-                    textViewOutput.setText(input + "*");
-                    textViewInput.setText("");
+                    setInput("");
+                    setOutput(input + " " + "*");
                     return;
                 }
             }
@@ -237,16 +227,14 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
             if (input.length() == 0 && output.length() != 0) {
                 if (output.charAt(output.length() - 1) == '-' || output.charAt(output.length() - 1) == '+' ||
                         output.charAt(output.length() - 1) == '*' || output.charAt(output.length() - 1) == '/') {
-                    textViewOutput.setText(output.subSequence(0, output.length() - 1) + "*");
+                    setOutput(output.subSequence(0, output.length() - 1) + " " + "*");
                 }
             }
 
-            if (input.length() == 0) {
-                return;
-            } else {
+            if (input.length() != 0) {
                 if (input.length() != 0) {
-                    textViewOutput.setText(output + input + "*");
-                    textViewInput.setText("");
+                    setOutput(output + " " + input + " " + "*");
+                    setInput("");
                 }
             }
         });
@@ -257,101 +245,66 @@ public class CalculatorSimpleActivity extends AppCompatActivity {
                 if (textViewInput.getText().charAt(0) == '-') {
                     textViewInput.setText(textViewInput.getText().subSequence(1, textViewInput.getText().length()));
                 } else {
-                    textViewInput.setText("-" + textViewInput.getText().subSequence(0, textViewInput.getText().length()));
+                    setInput("-" + getInput().subSequence(0, getInput().length()));
                 }
             }
         });
         btnAllClear.setOnClickListener(v -> {
-            textViewInput.setText("");
-            textViewOutput.setText("");
+            setInput("");
+            setOutput("");
         });
 
         btnClear.setOnClickListener(v -> {
-            if (textViewInput.length() != 0) {
-                textViewInput.setText(textViewInput.getText().subSequence(0, textViewInput.getText().length() - 1));
+            if (getInput().contains("(") || getInput().contains("(")) {
+                setInput("");
+            }
+
+            if (getInput().length() != 0) {
+                setInput(getInput().subSequence(0, getInput().length() - 1).toString());
             }
         });
     }
 
-    public static LinkedList<String> parse(String s){
-        StringTokenizer st = new StringTokenizer(s, "+-*/=", true);
-        LinkedList<String> list = new LinkedList<>();
-        while (st.hasMoreTokens()){
-            list.add(st.nextToken());
-        }
-        return list;
+    private void setInput(String s) {
+        textViewInput.setText(s);
+    }
+
+    private void setOutput(String s) {
+        textViewOutput.setText(s);
+    }
+
+    private String getInput() {
+        return textViewInput.getText().toString();
+    }
+
+    private String getOutput() {
+        return textViewOutput.getText().toString();
+    }
+
+    public void displayToast(String msg) {
+        runOnUiThread(() -> Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show());
     }
 
     private String calculate(String n) {
-        LinkedList<String> list = parse(n);
-        ListIterator<String> iterator = list.listIterator();
-
-        if(iterator.hasNext()){
-            if(iterator.next().equals("-")){
-                String s = iterator.next();
-                iterator.set("-" + s);
-            }
-        }
-
-        iterator = list.listIterator();
-
-        while (iterator.hasNext()) {
-            if (iterator.next().equals("--")) iterator.set("+");
-            if (iterator.equals("+") || iterator.equals("/") || iterator.equals("*") || iterator.equals("-")) {
-                if (!iterator.hasNext()) {
-                    iterator.remove();
-                }
-            }
-        }
-
-        iterator = list.listIterator();
-
-        while (iterator.hasNext()) {
-            String op = iterator.next();
-            if (op.equals("*")) {
-                iterator.remove();
-                Double a = Double.parseDouble(iterator.previous());
-                iterator.remove();
-                Double b = Double.parseDouble(iterator.next());
-                iterator.set(String.valueOf(a * b));
-            } else if (op.equals("/")) {
-                iterator.remove();
-                Double a = Double.parseDouble(iterator.previous());
-                iterator.remove();
-                Double b = Double.parseDouble(iterator.next());
-                String check = String.valueOf(a / b);
-                if (check.equals("Infinity")) {
-                    textViewOutput.setText("");
-                    textViewOutput.setText("");
-                    Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
-                    return "";
-                }
-                iterator.set(String.valueOf(a / b));
-            }
-        }
-
-        iterator = list.listIterator();
-        while (iterator.hasNext()) {
-            String op = iterator.next();
-            if (op.equals("+")) {
-                iterator.remove();
-                Double a = Double.parseDouble(iterator.previous());
-                iterator.remove();
-                Double b = Double.parseDouble(iterator.next());
-                iterator.set(String.valueOf(a + b));
-            } else if (op.equals("-")) {
-                iterator.remove();
-                Double a = Double.parseDouble(iterator.previous());
-                iterator.remove();
-                Double b = Double.parseDouble(iterator.next());
-                iterator.set(String.valueOf(a - b));
-            }
+        LinkedList<String> list = MathParser.parse(n);
+        try {
+            MathParser.validateExpression(list.listIterator());
+//            MathParser.calculateMathFunctions(list.listIterator());
+//            MathParser.calculatePercents(list.listIterator());
+            MathParser.calculateMultiplicationDivison(list.listIterator());
+            MathParser.calculateAddingSubstraction(list.listIterator());
+//            MathParser.calculatePow(list.listIterator());
+        } catch (IncorrectInputException e) {
+            displayToast(e.getMessage());
+            setInput("");
+            setOutput("");
+            return "";
         }
 
         return list.get(0);
     }
 
     private void setButtonListener(Button button, String text) {
-        button.setOnClickListener(v -> textViewInput.setText(textViewInput.getText().toString() + text));
+        button.setOnClickListener(v -> setInput(getInput() + text));
     }
 }

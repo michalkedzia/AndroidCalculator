@@ -1,11 +1,15 @@
 package mk.calculator.parser;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.StringTokenizer;
 import mk.calculator.exceptions.IncorrectInputException;
 
 public class MathParser {
+    public static final MathContext PRECISION  = new MathContext(5);
 
     public static void calculateMathFunctions(ListIterator<String> iterator) throws IncorrectInputException {
         double sign;
@@ -19,31 +23,52 @@ public class MathParser {
                 offset = 1;
             }
 
+            String result = null;
+
             if (s.contains("sin")) {
                 if (isValidNumber(s.substring(4 + offset, s.length() - 1)))
                     throw new IncorrectInputException();
-                iterator.set(String.valueOf(sign * Math.sin(Double.parseDouble(s.substring(4 + offset, s.length() - 1)))));
+                result = String.valueOf(sign * Math.sin(Double.parseDouble(s.substring(4 + offset, s.length() - 1))));
+                if(result.contains("Infinity")) throw new IncorrectInputException();
+                iterator.set(result);
+//                iterator.set(String.valueOf(sign * Math.sin(Double.parseDouble(s.substring(4 + offset, s.length() - 1)))));
             } else if (s.contains("cos")) {
                 if (isValidNumber(s.substring(4 + offset, s.length() - 1)))
                     throw new IncorrectInputException();
-                iterator.set(String.valueOf(sign * Math.cos(Double.parseDouble(s.substring(4 + offset, s.length() - 1)))));
+                result = String.valueOf(sign * Math.cos(Double.parseDouble(s.substring(4 + offset, s.length() - 1))));
+                if(result.contains("Infinity")) throw new IncorrectInputException();
+                iterator.set(result);
+//                iterator.set(String.valueOf(sign * Math.cos(Double.parseDouble(s.substring(4 + offset, s.length() - 1)))));
             } else if (s.contains("tan")) {
                 if (isValidNumber(s.substring(4 + offset, s.length() - 1)))
                     throw new IncorrectInputException();
-                iterator.set(String.valueOf(sign * Math.tan(Double.parseDouble(s.substring(4 + offset, s.length() - 1)))));
+                result = String.valueOf(sign * Math.tan(Double.parseDouble(s.substring(4 + offset, s.length() - 1))));
+                if(result.contains("Infinity")) throw new IncorrectInputException();
+                iterator.set(result);
+//                iterator.set(String.valueOf(sign * Math.tan(Double.parseDouble(s.substring(4 + offset, s.length() - 1)))));
             } else if (s.contains("ln")) {
                 if (isValidNumber(s.substring(3 + offset, s.length() - 1)))
                     throw new IncorrectInputException();
-                iterator.set(String.valueOf(sign * Math.log10(Double.parseDouble(s.substring(3 + offset, s.length() - 1)))));
+                    result = String.valueOf(sign * Math.log10(Double.parseDouble(s.substring(3 + offset, s.length() - 1))));
+                if(result.contains("Infinity")) throw new IncorrectInputException();
+                iterator.set(result);
+//                iterator.set(String.valueOf(sign * Math.log10(Double.parseDouble(s.substring(3 + offset, s.length() - 1)))));
             } else if (s.contains("log")) {
                 if (isValidNumber(s.substring(4 + offset, s.length() - 1)))
                     throw new IncorrectInputException();
-                iterator.set(String.valueOf(sign * Math.log(Double.parseDouble(s.substring(4 + offset, s.length() - 1)))));
+                result = String.valueOf(sign * Math.log(Double.parseDouble(s.substring(4 + offset, s.length() - 1))));
+                if(result.contains("Infinity")) throw new IncorrectInputException();
+                iterator.set(result);
+//                iterator.set(String.valueOf(sign * Math.log(Double.parseDouble(s.substring(4 + offset, s.length() - 1)))));
             } else if (s.contains("√")) {
                 if (isValidNumber(s.substring(2 + offset, s.length() - 1)))
                     throw new IncorrectInputException();
-                iterator.set(String.valueOf(sign * Math.log(Double.parseDouble(s.substring(2 + offset, s.length() - 1)))));
+//                iterator.set(String.valueOf(sign * Math.log(Double.parseDouble(s.substring(2 + offset, s.length() - 1)))));
+                result = String.valueOf(sign * Math.log(Double.parseDouble(s.substring(2 + offset, s.length() - 1))));
+                if(result.contains("Infinity")) throw new IncorrectInputException();
+                iterator.set(result);
             }
+
         }
     }
 
@@ -122,10 +147,13 @@ public class MathParser {
             String op = iterator.next();
             if (op.equals("*")) {
                 iterator.remove();
-                Double a = Double.parseDouble(iterator.previous());
+//                Double a = Double.parseDouble(iterator.previous());
+                BigDecimal a = new BigDecimal(iterator.previous());
                 iterator.remove();
-                Double b = Double.parseDouble(iterator.next());
-                iterator.set(String.valueOf(a * b));
+//                Double b = Double.parseDouble(iterator.next());
+                BigDecimal b = new BigDecimal(iterator.next());
+                iterator.set(String.valueOf(a.multiply(b,PRECISION)));
+
             } else if (op.equals("/")) {
                 iterator.remove();
                 Double a = Double.parseDouble(iterator.previous());
@@ -134,6 +162,8 @@ public class MathParser {
                 String check = String.valueOf(a / b);
                 if (check.equals("Infinity")) throw new IncorrectInputException();
                 iterator.set(String.valueOf(a / b));
+
+
             }
         }
     }
@@ -160,6 +190,7 @@ public class MathParser {
     public static void validateExpression(ListIterator<String> iterator) throws IncorrectInputException {
         while (iterator.hasNext()) {
             String s = iterator.next();
+            if(s.contains("Infinity")) throw new IncorrectInputException();
 
             if (s.contains("%")) {
                 if (s.charAt(s.length() - 1) != '%') {

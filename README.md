@@ -2,6 +2,7 @@
 
 Calculator application has two simple and advanced views.
 
-![](demo/1.png =250x200)
-![](demo/2.png =250x200)
-![](demo/2.png =250x200)
+<img src="demo/1.png" width="250" height="200">
+<img src="demo/2.png" width="250" height="200">
+<img src="demo/3.png" width="250" height="200">
+
